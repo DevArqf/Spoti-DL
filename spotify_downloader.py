@@ -3,6 +3,8 @@ from spotipy.oauth2 import SpotifyOAuth
 import yt_dlp
 import os
 import time
+import subprocess
+import sys
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from rich.console import Console
@@ -23,14 +25,25 @@ from config_manager import (
 
 console = Console()
 
+def check_ffmpeg():
+    try:
+        subprocess.run(['ffmpeg', '-version'], 
+                      stdout=subprocess.PIPE, 
+                      stderr=subprocess.PIPE, 
+                      check=True)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
+
 def print_banner():
     banner = """
-    ███████╗██████╗  ██████╗ ████████╗██╗      ██████╗ ██╗     
-    ██╔════╝██╔══██╗██╔═══██╗╚══██╔══╝██║      ██╔══██╗██║     
-    ███████╗██████╔╝██║   ██║   ██║   ██║█████╗██║  ██║██║     
-    ╚════██║██╔═══╝ ██║   ██║   ██║   ██║╚════╝██║  ██║██║     
-    ███████║██║     ╚██████╔╝   ██║   ██║      ██████╔╝███████╗
-    ╚══════╝╚═╝      ╚═════╝    ╚═╝   ╚═╝      ╚═════╝ ╚══════╝
+███████╗██████╗  ██████╗ ████████╗██╗      ██████╗ ██╗     
+██╔════╝██╔══██╗██╔═══██╗╚══██╔══╝██║      ██╔══██╗██║     
+███████╗██████╔╝██║   ██║   ██║   ██║█████╗██║  ██║██║     
+╚════██║██╔═══╝ ██║   ██║   ██║   ██║╚════╝██║  ██║██║     
+███████║██║     ╚██████╔╝   ██║   ██║      ██████╔╝███████╗
+╚══════╝╚═╝      ╚═════╝    ╚═╝   ╚═╝      ╚═════╝ ╚══════╝
+                                                           
     """
     console.print(banner, style="bold cyan")
     console.print(
@@ -125,6 +138,7 @@ def display_playlist_info(tracks, playlist_name, config):
     
     console.print(table)
     
+    # Calculate total duration
     for track in tracks[preview_count:]:
         total_duration += track['duration']
     
@@ -180,11 +194,16 @@ def download_track(track_info, output_dir, config):
         'no_warnings': True,
         'default_search': 'ytsearch1',
         'noplaylist': True,
+        'keepvideo': False,
+        'prefer_ffmpeg': True,
+        'postprocessor_args': [
+            '-ar', '44100'
+        ],
     }
     
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([f"ytsearch1:{search_query}"])
+            info = ydl.extract_info(f"ytsearch1:{search_query}", download=True)
             return {'status': 'success', 'track': search_query}
     except Exception as e:
         return {'status': 'failed', 'track': search_query, 'error': str(e)}
@@ -237,6 +256,15 @@ def download_tracks_parallel(tracks, output_dir, config, progress):
 
 def main():
     print_banner()
+    
+    if not check_ffmpeg():
+        console.print("[bold red]✗ FFmpeg not found![/bold red]")
+        console.print("\nFFmpeg is required for audio conversion. Please install it:")
+        console.print("  • Windows: [cyan]winget install -e --id Gyan.FFmpeg[/cyan]")
+        console.print("  • macOS: [cyan]brew install ffmpeg[/cyan]")
+        console.print("  • Linux: [cyan]sudo apt install ffmpeg[/cyan]")
+        console.print("\nAfter installation, restart this script.\n")
+        sys.exit(1)
     
     if not config_exists():
         console.print("[yellow]No configuration found. Starting setup wizard...[/yellow]\n")
