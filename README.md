@@ -4,7 +4,6 @@
 
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
-![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)
 
 This repository is a command-line tool for downloading entire Spotify playlists as high-quality MP3 files with a clean terminal interface.
 
@@ -24,15 +23,11 @@ Most online downloaders limit you to 100 songs per playlist and charge monthly f
 
 This tool downloads unlimited tracks at 320kbps, shows real-time progress with ETAs, and runs entirely on your local machine. It's open source, auditable, and uses official APIs rather than sketchy web scrapers. If a download fails, you get a clean report of what went wrong instead of silent failures.
 
----
-
 ## Features
 
 The interface uses Rich for terminal formatting, giving you color-coded progress indicators, real-time download bars, and ETA calculations. You can download entire playlists without track limits, and all files are encoded at 320kbps MP3 with proper metadata tagging.
 
 The tool handles errors gracefully, tracking which downloads succeed and which fail. Failed tracks get listed at the end so you can investigate or retry them manually. Everything runs locally using the official Spotify API, so there's no risk of account compromise or data being sent to third parties.
-
----
 
 ## Installation
 
@@ -49,8 +44,6 @@ pip install -r requirements.txt
 Next, you need to create a Spotify API application. Head to the [Spotify Developer Page](https://developer.spotify.com/) and log in. Create a new app with whatever name you want. The important part is adding `http://127.0.0.1:9090` as a redirect URI.
 
 Once your app is created, copy the Client ID and Client Secret.
-
----
 
 ## Usage
 
@@ -88,8 +81,6 @@ Start downloading? [y/n] (y): y
 Downloading playlist... ━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
 ```
 
----
-
 ## Configuration
 
 The tool uses a `config.json` file to store all your settings. On first run, an interactive wizard helps you set everything up. You can modify settings anytime through the configuration menu.
@@ -121,8 +112,6 @@ Example configuration:
 }
 ```
 
----
-
 ## Troubleshooting
 
 If you see "Module not found" errors, make sure you've installed all dependencies:
@@ -140,23 +129,14 @@ Some tracks will inevitably fail to download if they're not available on YouTube
 > [!NOTE]
 > If you hit rate limits, YouTube is temporarily throttling your requests. Wait a few minutes before retrying. **DO NOT WORRY**! If you run the python script again, it will recognise already downloaded files.
 
----
-
 ## Contact
-
-**Malik Johnson**
-
 Website: [malikjohnson.info](https://malikjohnson.info)  
 LinkedIn: [malik-johnson-597700397](https://www.linkedin.com/in/malik-johnson-597700397)    
 Discord: [@arqf](https://discord.com/users/899385550585364481)
 
----
-
 ## License
 
 MIT License. Use this project however you want.
-
----
 
 <div align="center">
 
