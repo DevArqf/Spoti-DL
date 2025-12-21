@@ -4,60 +4,61 @@
     "description": "Desktop app for downloading Spotify playlists",
     "main": "main.js",
     "scripts": {
-      "start": "electron .",
-      "build": "electron-builder",
-      "build:win": "electron-builder --win",
-      "build:mac": "electron-builder --mac",
-      "build:linux": "electron-builder --linux",
-      "build:portable": "electron-builder --win portable"
+        "start": "electron .",
+        "build": "electron-builder",
+        "build:win": "electron-builder --win",
+        "build:mac": "electron-builder --mac",
+        "build:linux": "electron-builder --linux",
+        "build:portable": "electron-builder --win portable"
     },
     "keywords": [
-      "spotify",
-      "downloader",
-      "music",
-      "playlist"
+        "spotify",
+        "downloader",
+        "music",
+        "playlist"
     ],
     "author": "DevArqf",
     "license": "MIT",
     "devDependencies": {
-      "electron": "^28.0.0",
-      "electron-builder": "^24.9.1"
+        "electron": "^28.3.3",
+        "electron-builder": "^24.9.1"
     },
     "dependencies": {
-      "axios": "^1.6.2"
+        "axios": "^1.6.2"
     },
     "build": {
-      "appId": "com.devarqf.spotidl",
-      "productName": "Spoti-DL",
-      "directories": {
-        "output": "dist"
-      },
-      "files": [
-        "**/*",
-        "!**/*.md",
-        "!.gitignore",
-        "!README.md"
-      ],
-      "win": {
-        "target": "nsis",
-        "icon": "assets/icon.ico",
-        "sign": null,
-        "signingHashAlgorithms": ["sha256"]
-      },
-      "nsis": {
-        "oneClick": false,
-        "allowToChangeInstallationDirectory": true
-      },
-      "mac": {
-        "target": "dmg",
-        "icon": "assets/icon.icns",
-        "hardenedRuntime": false,
-        "gatekeeperAssess": false
-      },
-      "linux": {
-        "target": "AppImage",
-        "icon": "assets/icon.png",
-        "category": "Audio"
-      }
+        "appId": "com.devarqf.spotidl",
+        "productName": "Spoti-DL",
+        "directories": {
+            "output": "dist"
+        },
+        "files": [
+            "**/*",
+            "!**/*.md",
+            "!.gitignore",
+            "!README.md"
+        ],
+        "win": {
+            "target": "nsis",
+            "icon": "assets/icon.ico",
+            "signingHashAlgorithms": [
+                "sha256"
+            ]
+        },
+        "nsis": {
+            "oneClick": false,
+            "allowToChangeInstallationDirectory": true
+        },
+        "mac": {
+            "target": "dmg",
+            "icon": "assets/icon.icns",
+            "hardenedRuntime": false,
+            "gatekeeperAssess": false
+        },
+        "linux": {
+            "target": "AppImage",
+            "icon": "assets/icon.png",
+            "category": "Audio"
+        }
     }
-  }
+}
