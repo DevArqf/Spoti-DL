@@ -8,21 +8,19 @@
 </head>
 <body>
     <div class="titlebar">
-        <div class="titlebar-drag-region"></div>
         <div class="titlebar-title">
-            <svg class="logo-icon" viewBox="0 0 24 24" fill="none">
-                <path d="./assets/icon.ico" fill="currentColor"/>
-            </svg>
-            <span>Spoti-DL</span>
+            <img src="assets/icon.png" class="logo-icon" alt="Spoti-DL Logo">
+            Spoti-DL
         </div>
+        <div class="titlebar-drag-region"></div>
         <div class="titlebar-controls">
-            <button class="titlebar-button" id="minimize-btn">
+            <button id="minimize-btn" class="titlebar-button">
                 <svg viewBox="0 0 12 12"><rect x="0" y="6" width="12" height="1" fill="currentColor"/></svg>
             </button>
-            <button class="titlebar-button" id="maximize-btn">
+            <button id="maximize-btn" class="titlebar-button">
                 <svg viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" stroke="currentColor" fill="none"/></svg>
             </button>
-            <button class="titlebar-button close-btn" id="close-btn">
+            <button id="close-btn" class="titlebar-button close-btn">
                 <svg viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor"/></svg>
             </button>
         </div>
@@ -46,10 +44,10 @@
             </nav>
 
             <div class="sidebar-footer">
-                <svg class="logo-icon" viewBox="0 0 24 24" fill="none">
-                    <path d="./assets/icon.ico" fill="currentColor"/>
-                </svg>
-                <div class="version-info">v1.0.0</div>
+                <p class="version-info">
+                    <img src="assets/icon.png" class="small-logo" alt="Spoti-DL Logo">
+                    v1.0.0
+                </p>
             </div>
         </aside>
 
@@ -177,9 +175,10 @@
                 </div>
             </div>
 
-            <div class="view" id="about-view">
-                <div class="section-header">
-                    <h1>About Spoti-DL</h1>
+            <div id="about-view" class="view">
+                <div class="about-content">
+                    <img src="assets/icon.png" class="about-logo" alt="Spoti-DL Logo">
+                    <h2>Spoti-DL Desktop</h2>
                 </div>
 
                 <div class="about-content">

@@ -41,6 +41,7 @@ body {
     justify-content: space-between;
     z-index: 1000;
     -webkit-app-region: drag;
+    justify-content: flex-start;
 }
 
 .titlebar-drag-region {
@@ -56,12 +57,27 @@ body {
     font-weight: 600;
     font-size: 13px;
     color: var(--text-primary);
+    padding-left: 8px;
 }
 
 .logo-icon {
     width: 20px;
     height: 20px;
-    color: var(--accent-primary);
+}
+
+.small-logo {
+    width: 16px;
+    height: 16px;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.about-logo {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    object-fit: contain;
+    margin-bottom: 16px;
 }
 
 .titlebar-controls {
