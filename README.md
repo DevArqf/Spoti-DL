@@ -127,20 +127,17 @@ Authentication failures typically come from incorrect Client ID/Secret or a mism
 Some tracks will inevitably fail to download if they're not available on YouTube or are region-restricted. The tool lists these at the end so you know what's missing.
 
 > [!NOTE]
-> If you hit rate limits, YouTube is temporarily throttling your requests. Wait a few minutes before retrying. **DO NOT WORRY**! If you run the python script again, it will recognise already downloaded files.
+> If you hit rate limits, YouTube may be temporarily throttling your requests. Wait a few minutes before retrying. **DO NOT WORRY!** If you run the python script again, it will recognise already downloaded files.
 
 ## Contact
 Website: [malikjohnson.info](https://malikjohnson.info)  
 LinkedIn: [malik-johnson-597700397](https://www.linkedin.com/in/malik-johnson-597700397)    
 Discord: [@arqf](https://discord.com/users/899385550585364481)
 
-## License
-
-MIT License. Use this project however you want.
+---
 
 <div align="center">
 
-☕ Made by [Malik Johnson](https://github.com/DevArqf) ☕
-
+### **Made with ❤️ by DevArqf**
 
 </div>
