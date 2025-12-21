@@ -1,3 +1,5 @@
+<div align="center">
+    
 # Spoti-DL
 
 ![Python](https://img.shields.io/badge/python-3.8+-blue.svg)
@@ -6,7 +8,7 @@
 
 This repository is a command-line tool for downloading entire Spotify playlists as high-quality MP3 files with a clean terminal interface.
 
----
+</div>
 
 ## Creation Reason
 
@@ -159,5 +161,6 @@ MIT License. Use this project however you want.
 <div align="center">
 
 ☕ Made by [Malik Johnson](https://github.com/DevArqf) ☕
+
 
 </div>
