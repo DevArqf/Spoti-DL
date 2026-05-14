@@ -6,6 +6,21 @@ const fs = require('fs');
 let mainWindow;
 let pythonProcess = null;
 
+function shouldSuppressPythonStderr(message) {
+    const text = String(message || '');
+    const suppressedMarkers = [
+        'Private video',
+        'Video unavailable',
+        'This video is unavailable',
+        'Requested format is not available',
+        "Sign in if you've been granted access to this video",
+        "This content isn't available",
+        'The uploader has not made this video available'
+    ];
+
+    return suppressedMarkers.some(marker => text.includes(marker));
+}
+
 function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1200,
@@ -70,6 +85,14 @@ ipcMain.handle('select-directory', async () => {
     return result.filePaths[0];
 });
 
+ipcMain.handle('select-file', async (event, options = {}) => {
+    const result = await dialog.showOpenDialog(mainWindow, {
+        properties: ['openFile'],
+        filters: options.filters || []
+    });
+    return result.filePaths[0];
+});
+
 ipcMain.handle('open-directory', async (event, dirPath) => {
     shell.openPath(dirPath);
 });
@@ -105,7 +128,8 @@ ipcMain.handle('fetch-playlist', async (event, playlistUrl, config) => {
             pythonScript,
             playlistUrl,
             config.spotify.client_id,
-            config.spotify.client_secret
+            config.spotify.client_secret,
+            JSON.stringify(config)
         ]);
 
         let dataString = '';
@@ -115,7 +139,10 @@ ipcMain.handle('fetch-playlist', async (event, playlistUrl, config) => {
         });
 
         python.stderr.on('data', (data) => {
-            console.error(`Python Error: ${data}`);
+            const message = data.toString();
+            if (!shouldSuppressPythonStderr(message)) {
+                console.error(`Python Error: ${message}`);
+            }
         });
 
         python.on('close', (code) => {
@@ -157,7 +184,10 @@ ipcMain.on('start-download', (event, tracks, config) => {
     });
 
     pythonProcess.stderr.on('data', (data) => {
-        console.error(`Download Error: ${data}`);
+        const message = data.toString();
+        if (!shouldSuppressPythonStderr(message)) {
+            console.error(`Download Error: ${message}`);
+        }
     });
 
     pythonProcess.on('close', (code) => {

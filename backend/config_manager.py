@@ -22,7 +22,9 @@ DEFAULT_CONFIG = {
         'audio_format': 'mp3',
         'audio_quality': '320',
         'parallel_downloads': 5,
-        'skip_existing': True
+        'skip_existing': True,
+        'youtube_cookies_browser': '',
+        'youtube_cookies_file': ''
     },
     'display': {
         'show_preview': True,
@@ -125,6 +127,8 @@ def show_config_menu(config):
         table.add_row("Audio Format", config['download']['audio_format'])
         table.add_row("Audio Quality", f"{config['download']['audio_quality']}kbps")
         table.add_row("Parallel Downloads", str(config['download']['parallel_downloads']))
+        table.add_row("YouTube Cookies Browser", config['download']['youtube_cookies_browser'] or "Disabled")
+        table.add_row("YouTube Cookies File", config['download']['youtube_cookies_file'] or "Not set")
         table.add_row("Skip Existing Files", str(config['download']['skip_existing']))
         table.add_row("Show Preview", str(config['display']['show_preview']))
         
@@ -135,14 +139,16 @@ def show_config_menu(config):
         console.print("[2] Change audio format")
         console.print("[3] Change audio quality")
         console.print("[4] Change parallel downloads")
-        console.print("[5] Toggle skip existing files")
-        console.print("[6] Toggle preview display")
-        console.print("[7] Reset to defaults")
-        console.print("[8] Save and exit")
+        console.print("[5] Set YouTube cookies browser")
+        console.print("[6] Set YouTube cookies file")
+        console.print("[7] Toggle skip existing files")
+        console.print("[8] Toggle preview display")
+        console.print("[9] Reset to defaults")
+        console.print("[10] Save and exit")
         console.print("[0] Exit without saving")
         console.print()
         
-        choice = Prompt.ask("[cyan]Select option[/cyan]", choices=['0','1','2','3','4','5','6','7','8'])
+        choice = Prompt.ask("[cyan]Select option[/cyan]", choices=['0','1','2','3','4','5','6','7','8','9','10'])
         
         if choice == '1':
             config['download']['output_directory'] = Prompt.ask(
@@ -168,15 +174,26 @@ def show_config_menu(config):
             )
             config['download']['parallel_downloads'] = max(1, min(10, parallel))
         elif choice == '5':
-            config['download']['skip_existing'] = not config['download']['skip_existing']
+            config['download']['youtube_cookies_browser'] = Prompt.ask(
+                "[cyan]YouTube cookies browser[/cyan]",
+                choices=['', 'chrome', 'edge', 'firefox', 'brave'],
+                default=config['download']['youtube_cookies_browser']
+            )
         elif choice == '6':
-            config['display']['show_preview'] = not config['display']['show_preview']
+            config['download']['youtube_cookies_file'] = Prompt.ask(
+                "[cyan]YouTube cookies file[/cyan]",
+                default=config['download']['youtube_cookies_file']
+            )
         elif choice == '7':
+            config['download']['skip_existing'] = not config['download']['skip_existing']
+        elif choice == '8':
+            config['display']['show_preview'] = not config['display']['show_preview']
+        elif choice == '9':
             if Confirm.ask("[yellow]Reset all settings to defaults?[/yellow]"):
                 config = DEFAULT_CONFIG.copy()
                 console.print("[green]Settings reset to defaults[/green]")
                 time.sleep(1)
-        elif choice == '8':
+        elif choice == '10':
             save_config(config)
             break
         elif choice == '0':

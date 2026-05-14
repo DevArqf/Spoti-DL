@@ -1,37 +1,42 @@
 # Spoti-DL Desktop App
 
-A beautiful, modern desktop application for downloading Spotify playlists built with Electron and Python.
+Desktop app for downloading Spotify and YouTube playlists as high-quality audio files with Electron and Python.
 
 ## Features
 
-- **Beautiful UI**: Dark theme with glassmorphism effects and smooth animations
-- **Real-time Progress**: Track download progress with live statistics
-- **Playlist Preview**: See tracks before downloading
-- **Configurable Settings**: Customize audio format, quality, and parallel downloads
-- **Cross-platform**: Works on Windows, macOS, and Linux
+- Download both Spotify playlists and YouTube playlists from the same app
+- Preview playlist name, source, track count, and total duration before downloading
+- Use smarter YouTube matching for Spotify tracks with title, artist, album, and duration scoring
+- Skip tracks that already exist in the output folder instead of downloading duplicates
+- Mark tracks as skipped when YouTube content is private, unavailable, or missing a usable format
+- Configure YouTube authentication with either browser cookies or an exported `cookies.txt` file
+- Monitor live progress with success, skipped, failed, and remaining counts
+- Build installers for Windows, macOS, Linux, and a portable Windows build
 
 ## Prerequisites
 
-1. **Node.js** (v16 or higher)
-2. **Python 3.8+**
-3. **FFmpeg** installed and in your system PATH
-4. **Spotify Developer Credentials** (Client ID and Secret)
+1. `Node.js` 16 or higher
+2. `Python` 3.8 or higher
+3. `FFmpeg` installed and available in `PATH`
+4. Spotify Developer credentials only if you want to fetch Spotify playlists
+
+You do not need Spotify credentials for YouTube playlists.
 
 ### Installing FFmpeg
 
-**Windows:**
+**Windows**
 
 ```bash
 winget install -e --id Gyan.FFmpeg
 ```
 
-**macOS:**
+**macOS**
 
 ```bash
 brew install ffmpeg
 ```
 
-**Linux:**
+**Linux**
 
 ```bash
 sudo apt install ffmpeg
@@ -42,12 +47,10 @@ sudo apt install ffmpeg
 ### 1. Install Python Dependencies
 
 ```bash
-pip install spotipy yt-dlp
+pip install spotipy yt-dlp rich
 ```
 
 ### 2. Install Node Dependencies
-
-Navigate to the project directory and install Node packages:
 
 ```bash
 npm install
@@ -55,10 +58,12 @@ npm install
 
 ### 3. Get Spotify API Credentials
 
+Only required for Spotify playlists.
+
 1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
 2. Create a new app
 3. Copy your Client ID and Client Secret
-4. You'll enter these in the app's Settings
+4. Enter them in the app settings
 
 ## Running the App
 
@@ -68,99 +73,67 @@ npm install
 npm start
 ```
 
-## Building the App
-
-### Build for Current Platform
-
-```bash
-npm run build
-```
-
-### Build for Specific Platforms
-
-**Windows:**
-
-```bash
-npm run build:win
-```
-
-**macOS:**
-
-```bash
-npm run build:mac
-```
-
-**Linux:**
-
-```bash
-npm run build:linux
-```
-
-The built applications will be in the `dist` folder.
-
 ## Usage Guide
 
 ### First Time Setup
 
-1. Launch the application
-2. Click on **Settings** in the sidebar
-3. Enter your Spotify **Client ID** and **Client Secret**
-4. Select an **Output Directory** where downloads will be saved
-5. Configure audio preferences (format, quality, parallel downloads)
-6. Click **Save Settings**
+1. Launch the application.
+2. Open **Settings**.
+3. If you plan to use Spotify playlists, enter your Spotify **Client ID** and **Client Secret**.
+4. Choose an **Output Directory**.
+5. Select an **Audio Format**, **Audio Quality**, and **Parallel Downloads** value.
+6. Optional: set **YouTube Cookies Browser** to `chrome`, `edge`, `firefox`, or `brave` if you need access to private or restricted YouTube content.
+7. Optional: set **YouTube Cookies File** to an exported Netscape-format `cookies.txt` file. When this is set, it is preferred over browser cookie extraction.
+8. Save settings.
 
 ### Downloading a Playlist
 
-1. Go to **Download** view
-2. Paste a Spotify playlist URL
-3. Click **Fetch Playlist**
-4. Preview the tracks
-5. Click **Download All**
-6. Monitor progress in real-time
+1. Open **Download**.
+2. Paste either:
+   - a Spotify playlist URL such as `https://open.spotify.com/playlist/...`
+   - a YouTube playlist URL such as `https://www.youtube.com/playlist?list=...`
+3. Click **Fetch Playlist**.
+4. Review the playlist preview.
+5. Click **Download All**.
+6. Watch the live progress panel for completed, skipped, and failed tracks.
 
-### Settings Options
+### Notes on Download Behavior
 
-- **Audio Format**: Choose between MP3, FLAC, M4A, Opus, or WAV
-- **Audio Quality**: 128, 192, 256, or 320 kbps (for MP3/M4A)
-- **Parallel Downloads**: 1-10 simultaneous downloads (5 recommended)
+- Spotify playlists are fetched from Spotify, then matched against YouTube search results before downloading.
+- YouTube playlists download directly from the playlist entries that were fetched.
+- Existing audio files in the output directory are skipped automatically.
+- Some unavailable or private YouTube videos are reported as skipped instead of failing the entire batch.
 
 ## Troubleshooting
 
+### "Please configure Spotify credentials"
+
+Spotify credentials are required for Spotify playlists only. They are not required for YouTube playlists.
+
+### Spotify premium-related API error
+
+If Spotify reports that an active Premium subscription is required for the app owner, the app will not be able to fetch Spotify playlist tracks through that developer app until the Spotify account that owns the app has Premium.
+
+### Private or restricted YouTube videos
+
+- Sign into a supported browser that has access to the video and select that browser in settings.
+- If browser cookie extraction fails, close the browser completely and try again.
+- If needed, export a Netscape-format `cookies.txt` file and set it in the app.
+
 ### "FFmpeg not found"
 
-Make sure FFmpeg is installed and accessible from your terminal:
+Verify FFmpeg is available:
 
 ```bash
 ffmpeg -version
 ```
 
-If not found, add FFmpeg to your system PATH.
+If the command fails, install FFmpeg and add it to your system `PATH`.
 
-### "Failed to fetch playlist"
+### Tracks are being skipped
 
-- Check your Spotify credentials in Settings
-- Ensure the playlist URL is correct
-- Verify internet connection
+Tracks can be skipped when:
 
-### Downloads failing
-
-- Some tracks may not be available on YouTube
-- Check your internet connection
-- Try reducing parallel downloads if experiencing timeouts
-
-### Build errors
-
-If you encounter build errors:
-
-```bash
-# Clean node_modules and reinstall
-rm -rf node_modules package-lock.json
-npm install
-
-# Clear Electron cache
-npm cache clean --force
-```
-
----
-
-**Made with ❤️ by DevArqf**
+- the file already exists in the output directory
+- the YouTube video is private or unavailable
+- YouTube does not expose a usable downloadable format for that track

@@ -55,13 +55,13 @@
             <div class="view active" id="download-view">
                 <div class="section-header">
                     <h1>Download Playlist</h1>
-                    <p>Enter your Spotify playlist URL to get started</p>
+                    <p>Enter a Spotify or YouTube playlist URL to get started</p>
                 </div>
 
                 <div class="input-group">
                     <div class="input-wrapper">
                         <svg class="input-icon" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z" fill="currentColor"/></svg>
-                        <input type="text" id="playlist-url" placeholder="https://open.spotify.com/playlist/..." />
+                        <input type="text" id="playlist-url" placeholder="https://open.spotify.com/playlist/... or https://www.youtube.com/playlist?list=..." />
                         <button class="btn-primary" id="fetch-btn">
                             <span>Fetch Playlist</span>
                             <svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z" fill="currentColor"/></svg>
@@ -74,8 +74,10 @@
                         <div class="playlist-info">
                             <h2 id="playlist-name">Playlist Name</h2>
                             <div class="playlist-meta">
+                                <span id="playlist-source">Source</span>
+                                <span>&bull;</span>
                                 <span id="track-count">0 tracks</span>
-                                <span>•</span>
+                                <span>&bull;</span>
                                 <span id="total-duration">0h 0m</span>
                             </div>
                         </div>
@@ -97,6 +99,10 @@
                         <div class="stat">
                             <span class="stat-label">Success</span>
                             <span class="stat-value success" id="success-count">0</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-label">Skipped</span>
+                            <span class="stat-value" id="skipped-count">0</span>
                         </div>
                         <div class="stat">
                             <span class="stat-label">Failed</span>
@@ -167,6 +173,27 @@
                         <input type="number" id="parallel-downloads" min="1" max="10" value="5" />
                         <span class="setting-hint">Number of simultaneous downloads (1-10)</span>
                     </div>
+
+                    <div class="setting-group">
+                        <label>YouTube Cookies Browser</label>
+                        <select id="youtube-cookies-browser">
+                            <option value="">Disabled</option>
+                            <option value="chrome">Chrome</option>
+                            <option value="edge">Edge</option>
+                            <option value="firefox">Firefox</option>
+                            <option value="brave">Brave</option>
+                        </select>
+                        <span class="setting-hint">Use your signed-in browser session for private or restricted YouTube videos</span>
+                    </div>
+
+                    <div class="setting-group">
+                        <label>YouTube Cookies File</label>
+                        <div class="input-with-button">
+                            <input type="text" id="youtube-cookies-file" placeholder="Select cookies.txt file" readonly />
+                            <button class="btn-secondary" id="select-cookies-file-btn">Browse</button>
+                        </div>
+                        <span class="setting-hint">Preferred over browser extraction when set. Use an exported Netscape-format cookies.txt file.</span>
+                    </div>
                 </div>
 
                 <div class="settings-actions">
@@ -183,7 +210,7 @@
                     <p class="version">Version 1.0.0</p>
 
                     <p class="description">
-                        A powerful desktop application for downloading Spotify playlists as high-quality audio files. Built with Electron and Python.
+                        A desktop application for downloading Spotify and YouTube playlists as high-quality audio files. Built with Electron and Python.
                     </p>
 
                         <div class="features-list">
