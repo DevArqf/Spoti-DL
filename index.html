@@ -6,229 +6,326 @@
     <title>Spoti-DL</title>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-    <div class="titlebar">
-        <div class="titlebar-title">
-            <img src="assets/icon.png" class="logo-icon" alt="Spoti-DL Logo">
-            Spoti-DL
-        </div>
-        <div class="titlebar-drag-region"></div>
-        <div class="titlebar-controls">
-            <button id="minimize-btn" class="titlebar-button">
-                <svg viewBox="0 0 12 12"><rect x="0" y="6" width="12" height="1" fill="currentColor"/></svg>
-            </button>
-            <button id="maximize-btn" class="titlebar-button">
-                <svg viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" stroke="currentColor" fill="none"/></svg>
-            </button>
-            <button id="close-btn" class="titlebar-button close-btn">
-                <svg viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor"/></svg>
-            </button>
-        </div>
-    </div>
-
-    <div class="container">
-        <aside class="sidebar">
-            <nav class="nav-menu">
-                <button class="nav-item active" data-view="download">
-                    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/></svg>
-                    <span>Download</span>
-                </button>
-                <button class="nav-item" data-view="settings">
-                    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/></svg>
-                    <span>Settings</span>
-                </button>
-                <button class="nav-item" data-view="about">
-                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor"/></svg>
-                    <span>About</span>
-                </button>
-            </nav>
-
-            <div class="sidebar-footer">
-                <p class="version-info">
-                    <img src="assets/icon.png" class="small-logo" alt="Spoti-DL Logo">
-                    v1.0.0
-                </p>
+<body data-theme="dark">
+    <div class="app-shell">
+        <div class="titlebar">
+            <div class="titlebar-title">
+                <img src="assets/icon.png" class="logo-icon" alt="Spoti-DL Logo">
+                <div class="brand-copy">
+                    <strong>Spoti-DL</strong>
+                    <span>playlist audio downloader</span>
+                </div>
             </div>
-        </aside>
+            <div class="titlebar-drag-region"></div>
+            <div class="titlebar-controls">
+                <button id="minimize-btn" class="titlebar-button" aria-label="Minimize window">
+                    <svg viewBox="0 0 12 12"><rect x="0" y="6" width="12" height="1" fill="currentColor"/></svg>
+                </button>
+                <button id="maximize-btn" class="titlebar-button" aria-label="Maximize window">
+                    <svg viewBox="0 0 12 12"><rect x="1" y="1" width="10" height="10" stroke="currentColor" fill="none"/></svg>
+                </button>
+                <button id="close-btn" class="titlebar-button close-btn" aria-label="Close window">
+                    <svg viewBox="0 0 12 12"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor"/></svg>
+                </button>
+            </div>
+        </div>
 
-        <main class="content">
-            <div class="view active" id="download-view">
-                <div class="section-header">
-                    <h1>Download Playlist</h1>
-                    <p>Enter a Spotify or YouTube playlist URL to get started</p>
+        <div class="container">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-badge">Desktop workflow</div>
+                    <h1>Bring playlists in, export clean audio out.</h1>
+                    <p>One place to fetch, preview, and download Spotify or YouTube playlists.</p>
                 </div>
 
-                <div class="input-group">
-                    <div class="input-wrapper">
-                        <svg class="input-icon" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z" fill="currentColor"/></svg>
-                        <input type="text" id="playlist-url" placeholder="https://open.spotify.com/playlist/... or https://www.youtube.com/playlist?list=..." />
-                        <button class="btn-primary" id="fetch-btn">
-                            <span>Fetch Playlist</span>
-                            <svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z" fill="currentColor"/></svg>
-                        </button>
-                    </div>
+                <nav class="nav-menu">
+                    <button class="nav-item active" data-view="download">
+                        <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/></svg>
+                        <span>Download</span>
+                    </button>
+                    <button class="nav-item" data-view="settings">
+                        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/></svg>
+                        <span>Settings</span>
+                    </button>
+                    <button class="nav-item" data-view="about">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" fill="currentColor"/></svg>
+                        <span>About</span>
+                    </button>
+                </nav>
+
+                <div class="sidebar-panel">
+                    <div class="sidebar-panel-label">Quick setup</div>
+                    <ul class="sidebar-checklist">
+                        <li>Choose an output folder</li>
+                        <li>Add Spotify API keys if needed</li>
+                        <li>Enable cookies for restricted YouTube content</li>
+                    </ul>
                 </div>
 
-                <div class="playlist-preview" id="playlist-preview" style="display: none;">
-                    <div class="preview-header">
-                        <div class="playlist-info">
-                            <h2 id="playlist-name">Playlist Name</h2>
-                            <div class="playlist-meta">
-                                <span id="playlist-source">Source</span>
-                                <span>&bull;</span>
-                                <span id="track-count">0 tracks</span>
-                                <span>&bull;</span>
-                                <span id="total-duration">0h 0m</span>
+                <div class="sidebar-footer">
+                    <p class="version-info">
+                        <img src="assets/icon.png" class="small-logo" alt="Spoti-DL Logo">
+                        Version 1.0.0
+                    </p>
+                </div>
+            </aside>
+
+            <main class="content">
+                <div class="view active" id="download-view">
+                    <section class="hero-card">
+                        <div class="hero-copy">
+                            <div class="eyebrow">Download workspace</div>
+                            <h2>Fetch a playlist and start downloading in one pass.</h2>
+                            <p>Paste a Spotify or YouTube playlist URL. Preview the playlist before anything gets written to disk.</p>
+                        </div>
+                        <div class="hero-hints">
+                            <span class="source-pill spotify-pill">Spotify playlists</span>
+                            <span class="source-pill youtube-pill">YouTube playlists</span>
+                            <span class="source-pill neutral-pill">Duplicate-aware downloads</span>
+                        </div>
+                    </section>
+
+                    <section class="panel panel-tight">
+                        <div class="panel-header-row">
+                            <div>
+                                <h1>Playlist URL</h1>
+                                <p>Supports <code>open.spotify.com/playlist/...</code> and <code>youtube.com/playlist?list=...</code></p>
                             </div>
                         </div>
-                        <button class="btn-success" id="download-btn">
-                            <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/></svg>
-                            <span>Download All</span>
-                        </button>
-                    </div>
 
-                    <div class="tracks-list" id="tracks-list"></div>
-                </div>
-
-                <div class="download-progress" id="download-progress" style="display: none;">
-                    <div class="progress-header">
-                        <h3>Downloading Playlist</h3>
-                        <button class="btn-cancel" id="cancel-btn">Cancel</button>
-                    </div>
-                    <div class="progress-stats">
-                        <div class="stat">
-                            <span class="stat-label">Success</span>
-                            <span class="stat-value success" id="success-count">0</span>
+                        <div class="input-group">
+                            <div class="input-wrapper">
+                                <svg class="input-icon" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z" fill="currentColor"/></svg>
+                                <input type="text" id="playlist-url" placeholder="Paste a Spotify or YouTube playlist URL" />
+                                <button class="btn-primary" id="fetch-btn">
+                                    <span>Fetch Playlist</span>
+                                    <svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z" fill="currentColor"/></svg>
+                                </button>
+                            </div>
                         </div>
-                        <div class="stat">
-                            <span class="stat-label">Skipped</span>
-                            <span class="stat-value" id="skipped-count">0</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-label">Failed</span>
-                            <span class="stat-value error" id="failed-count">0</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-label">Remaining</span>
-                            <span class="stat-value" id="remaining-count">0</span>
-                        </div>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progress-fill"></div>
-                    </div>
-                    <div class="current-track" id="current-track"></div>
-                    <div class="download-log" id="download-log"></div>
-                </div>
-            </div>
+                    </section>
 
-            <div class="view" id="settings-view">
-                <div class="section-header">
-                    <h1>Settings</h1>
-                    <p>Configure your download preferences</p>
-                </div>
+                    <div class="download-layout">
+                        <section class="playlist-preview panel" id="playlist-preview" style="display: none;">
+                            <div class="preview-header">
+                                <div class="playlist-info">
+                                    <div class="preview-kicker">Playlist preview</div>
+                                    <h2 id="playlist-name">Playlist Name</h2>
+                                    <div class="playlist-meta">
+                                        <span id="playlist-source">Source</span>
+                                        <span>&bull;</span>
+                                        <span id="track-count">0 tracks</span>
+                                        <span>&bull;</span>
+                                        <span id="total-duration">0h 0m</span>
+                                    </div>
+                                </div>
+                                <button class="btn-success" id="download-btn">
+                                    <svg viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/></svg>
+                                    <span>Download All</span>
+                                </button>
+                            </div>
 
-                <div class="settings-grid">
-                    <div class="setting-group">
-                        <label>Spotify Client ID</label>
-                        <input type="text" id="client-id" placeholder="Enter your Spotify Client ID" />
-                        <span class="setting-hint">Get from <a href="#" id="spotify-dev-link">Spotify Developer Dashboard</a></span>
-                    </div>
+                            <div class="tracks-list" id="tracks-list"></div>
+                        </section>
 
-                    <div class="setting-group">
-                        <label>Spotify Client Secret</label>
-                        <input type="password" id="client-secret" placeholder="Enter your Spotify Client Secret" />
-                    </div>
+                        <section class="download-progress panel" id="download-progress" style="display: none;">
+                            <div class="progress-header">
+                                <div>
+                                    <div class="preview-kicker">Transfer status</div>
+                                    <h3>Downloading Playlist</h3>
+                                </div>
+                                <button class="btn-cancel" id="cancel-btn">Cancel</button>
+                            </div>
+                            <div class="progress-stats">
+                                <div class="stat">
+                                    <span class="stat-label">Success</span>
+                                    <span class="stat-value success" id="success-count">0</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Skipped</span>
+                                    <span class="stat-value" id="skipped-count">0</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Failed</span>
+                                    <span class="stat-value error" id="failed-count">0</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-label">Remaining</span>
+                                    <span class="stat-value" id="remaining-count">0</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <div class="current-track" id="current-track"></div>
+                            <div class="download-log" id="download-log"></div>
+                        </section>
 
-                    <div class="setting-group">
-                        <label>Output Directory</label>
-                        <div class="input-with-button">
-                            <input type="text" id="output-dir" placeholder="Select download location" readonly />
-                            <button class="btn-secondary" id="select-dir-btn">Browse</button>
-                        </div>
-                    </div>
-
-                    <div class="setting-group">
-                        <label>Audio Format</label>
-                        <select id="audio-format">
-                            <option value="mp3">MP3</option>
-                            <option value="flac">FLAC</option>
-                            <option value="m4a">M4A</option>
-                            <option value="opus">Opus</option>
-                            <option value="wav">WAV</option>
-                        </select>
-                    </div>
-
-                    <div class="setting-group">
-                        <label>Audio Quality</label>
-                        <select id="audio-quality">
-                            <option value="128">128 kbps</option>
-                            <option value="192">192 kbps</option>
-                            <option value="256">256 kbps</option>
-                            <option value="320" selected>320 kbps</option>
-                        </select>
-                    </div>
-
-                    <div class="setting-group">
-                        <label>Parallel Downloads</label>
-                        <input type="number" id="parallel-downloads" min="1" max="10" value="5" />
-                        <span class="setting-hint">Number of simultaneous downloads (1-10)</span>
-                    </div>
-
-                    <div class="setting-group">
-                        <label>YouTube Cookies Browser</label>
-                        <select id="youtube-cookies-browser">
-                            <option value="">Disabled</option>
-                            <option value="chrome">Chrome</option>
-                            <option value="edge">Edge</option>
-                            <option value="firefox">Firefox</option>
-                            <option value="brave">Brave</option>
-                        </select>
-                        <span class="setting-hint">Use your signed-in browser session for private or restricted YouTube videos</span>
-                    </div>
-
-                    <div class="setting-group">
-                        <label>YouTube Cookies File</label>
-                        <div class="input-with-button">
-                            <input type="text" id="youtube-cookies-file" placeholder="Select cookies.txt file" readonly />
-                            <button class="btn-secondary" id="select-cookies-file-btn">Browse</button>
-                        </div>
-                        <span class="setting-hint">Preferred over browser extraction when set. Use an exported Netscape-format cookies.txt file.</span>
+                        <aside class="side-info-column">
+                            <section class="mini-panel">
+                                <div class="mini-panel-title">How this flows</div>
+                                <p>Fetch first, confirm the playlist preview, then start downloading. Existing files will be skipped automatically.</p>
+                            </section>
+                            <section class="mini-panel">
+                                <div class="mini-panel-title">Restricted YouTube content</div>
+                                <p>If a video is private or region-locked, enable a supported browser session or select a <code>cookies.txt</code> file in settings.</p>
+                            </section>
+                        </aside>
                     </div>
                 </div>
 
-                <div class="settings-actions">
-                    <button class="btn-primary" id="save-settings-btn">Save Settings</button>
-                    <button class="btn-secondary" id="reset-settings-btn">Reset to Defaults</button>
+                <div class="view" id="settings-view">
+                    <section class="panel">
+                        <div class="section-header">
+                            <div class="eyebrow">Configuration</div>
+                            <h1>Settings</h1>
+                            <p>Keep credentials, output location, and download behavior in one place.</p>
+                        </div>
+
+                        <div class="settings-sections">
+                            <section class="settings-card">
+                                <div class="settings-card-header">
+                                    <h2>Spotify access</h2>
+                                    <p>Only required when fetching Spotify playlists.</p>
+                                </div>
+                                <div class="settings-grid two-column">
+                                    <div class="setting-group">
+                                        <label>Spotify Client ID</label>
+                                        <input type="text" id="client-id" placeholder="Enter your Spotify Client ID" />
+                                        <span class="setting-hint">Get from <a href="#" id="spotify-dev-link">Spotify Developer Dashboard</a></span>
+                                    </div>
+
+                                    <div class="setting-group">
+                                        <label>Spotify Client Secret</label>
+                                        <input type="password" id="client-secret" placeholder="Enter your Spotify Client Secret" />
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="settings-card">
+                                <div class="settings-card-header">
+                                    <h2>Download output</h2>
+                                    <p>Set where files go and how they are encoded.</p>
+                                </div>
+                                <div class="settings-grid three-column">
+                                    <div class="setting-group full-span">
+                                        <label>Output Directory</label>
+                                        <div class="input-with-button">
+                                            <input type="text" id="output-dir" placeholder="Select download location" readonly />
+                                            <button class="btn-secondary" id="select-dir-btn">Browse</button>
+                                        </div>
+                                    </div>
+
+                                    <div class="setting-group">
+                                        <label>Audio Format</label>
+                                        <select id="audio-format">
+                                            <option value="mp3">MP3</option>
+                                            <option value="flac">FLAC</option>
+                                            <option value="m4a">M4A</option>
+                                            <option value="opus">Opus</option>
+                                            <option value="wav">WAV</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="setting-group">
+                                        <label>Audio Quality</label>
+                                        <select id="audio-quality">
+                                            <option value="128">128 kbps</option>
+                                            <option value="192">192 kbps</option>
+                                            <option value="256">256 kbps</option>
+                                            <option value="320" selected>320 kbps</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="setting-group">
+                                        <label>Parallel Downloads</label>
+                                        <input type="number" id="parallel-downloads" min="1" max="10" value="5" />
+                                        <span class="setting-hint">Set between 1 and 10 simultaneous downloads.</span>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="settings-card">
+                                <div class="settings-card-header">
+                                    <h2>Appearance</h2>
+                                    <p>Choose how the desktop app looks. Dark mode is the default.</p>
+                                </div>
+                                <div class="settings-grid two-column">
+                                    <div class="setting-group">
+                                        <label>Theme</label>
+                                        <select id="theme-select">
+                                            <option value="dark">Dark</option>
+                                            <option value="light">Light</option>
+                                        </select>
+                                        <span class="setting-hint">This preference is saved and applied immediately.</span>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <section class="settings-card">
+                                <div class="settings-card-header">
+                                    <h2>YouTube access</h2>
+                                    <p>Use browser cookies or an exported cookies file for restricted content.</p>
+                                </div>
+                                <div class="settings-grid two-column">
+                                    <div class="setting-group">
+                                        <label>YouTube Cookies Browser</label>
+                                        <select id="youtube-cookies-browser">
+                                            <option value="">Disabled</option>
+                                            <option value="chrome">Chrome</option>
+                                            <option value="edge">Edge</option>
+                                            <option value="firefox">Firefox</option>
+                                            <option value="brave">Brave</option>
+                                        </select>
+                                        <span class="setting-hint">Use your signed-in browser session for private or restricted YouTube videos.</span>
+                                    </div>
+
+                                    <div class="setting-group">
+                                        <label>YouTube Cookies File</label>
+                                        <div class="input-with-button">
+                                            <input type="text" id="youtube-cookies-file" placeholder="Select cookies.txt file" readonly />
+                                            <button class="btn-secondary" id="select-cookies-file-btn">Browse</button>
+                                        </div>
+                                        <span class="setting-hint">Preferred over browser extraction when set. Use a Netscape-format <code>cookies.txt</code> file.</span>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+
+                        <div class="settings-actions">
+                            <button class="btn-primary" id="save-settings-btn">Save Settings</button>
+                            <button class="btn-secondary" id="reset-settings-btn">Reset to Defaults</button>
+                        </div>
+                    </section>
                 </div>
-            </div>
 
-            <div id="about-view" class="view">
-                <div class="about-container">
-                    <img src="assets/icon.png" class="about-logo-img" alt="Spoti-DL Logo">
+                <div id="about-view" class="view">
+                    <section class="about-container panel">
+                        <div class="eyebrow">About the app</div>
+                        <img src="assets/icon.png" class="about-logo-img" alt="Spoti-DL Logo">
+                        <h1>Spoti-DL Desktop</h1>
+                        <p class="version">Version 1.0.0</p>
 
-                    <h1>Spoti-DL Desktop</h1>
-                    <p class="version">Version 1.0.0</p>
-
-                    <p class="description">
-                        A desktop application for downloading Spotify and YouTube playlists as high-quality audio files. Built with Electron and Python.
-                    </p>
+                        <p class="description">
+                            A desktop application for downloading Spotify and YouTube playlists as high-quality audio files, with live progress and a cleaner fetch-to-download workflow.
+                        </p>
 
                         <div class="features-list">
                             <div class="feature">
                                 <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg>
-                                <span>Unlimited playlist downloads</span>
+                                <span>Spotify and YouTube playlist support</span>
                             </div>
                             <div class="feature">
                                 <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg>
-                                <span>High-quality 320kbps MP3</span>
+                                <span>Duplicate-aware downloading</span>
                             </div>
                             <div class="feature">
                                 <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg>
-                                <span>Parallel downloading</span>
+                                <span>Parallel downloads with live progress</span>
                             </div>
                             <div class="feature">
                                 <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg>
-                                <span>Multiple audio formats</span>
+                                <span>Multiple audio output formats</span>
                             </div>
                         </div>
 
@@ -247,10 +344,10 @@
                             <p>Created by <strong>DevArqf</strong></p>
                             <p>Licensed under MIT License</p>
                         </div>
-                    </div>
+                    </section>
                 </div>
-            </div>
-        </main>
+            </main>
+        </div>
     </div>
 
     <div class="notification" id="notification">

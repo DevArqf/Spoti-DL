@@ -28,7 +28,8 @@ DEFAULT_CONFIG = {
     },
     'display': {
         'show_preview': True,
-        'preview_count': 10
+        'preview_count': 10,
+        'theme': 'dark'
     }
 }
 
@@ -131,6 +132,7 @@ def show_config_menu(config):
         table.add_row("YouTube Cookies File", config['download']['youtube_cookies_file'] or "Not set")
         table.add_row("Skip Existing Files", str(config['download']['skip_existing']))
         table.add_row("Show Preview", str(config['display']['show_preview']))
+        table.add_row("Theme", config['display']['theme'])
         
         console.print(table)
         console.print()
@@ -143,12 +145,13 @@ def show_config_menu(config):
         console.print("[6] Set YouTube cookies file")
         console.print("[7] Toggle skip existing files")
         console.print("[8] Toggle preview display")
-        console.print("[9] Reset to defaults")
-        console.print("[10] Save and exit")
+        console.print("[9] Change theme")
+        console.print("[10] Reset to defaults")
+        console.print("[11] Save and exit")
         console.print("[0] Exit without saving")
         console.print()
         
-        choice = Prompt.ask("[cyan]Select option[/cyan]", choices=['0','1','2','3','4','5','6','7','8','9','10'])
+        choice = Prompt.ask("[cyan]Select option[/cyan]", choices=['0','1','2','3','4','5','6','7','8','9','10','11'])
         
         if choice == '1':
             config['download']['output_directory'] = Prompt.ask(
@@ -189,11 +192,17 @@ def show_config_menu(config):
         elif choice == '8':
             config['display']['show_preview'] = not config['display']['show_preview']
         elif choice == '9':
+            config['display']['theme'] = Prompt.ask(
+                "[cyan]Theme[/cyan]",
+                choices=['dark', 'light'],
+                default=config['display']['theme']
+            )
+        elif choice == '10':
             if Confirm.ask("[yellow]Reset all settings to defaults?[/yellow]"):
                 config = DEFAULT_CONFIG.copy()
                 console.print("[green]Settings reset to defaults[/green]")
                 time.sleep(1)
-        elif choice == '10':
+        elif choice == '11':
             save_config(config)
             break
         elif choice == '0':

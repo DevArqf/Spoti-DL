@@ -29,6 +29,12 @@ function initializeEventListeners() {
     });
 
     document.getElementById('fetch-btn').addEventListener('click', fetchPlaylist);
+    document.getElementById('playlist-url').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            fetchPlaylist();
+        }
+    });
     document.getElementById('download-btn').addEventListener('click', startDownload);
     document.getElementById('cancel-btn').addEventListener('click', cancelDownload);
     
@@ -105,10 +111,24 @@ async function loadConfig() {
                 parallel_downloads: 5,
                 youtube_cookies_browser: '',
                 youtube_cookies_file: ''
+            },
+            display: {
+                theme: 'dark'
             }
         };
     }
 
+    if (!currentConfig.display) {
+        currentConfig.display = {
+            theme: 'dark'
+        };
+    }
+
+    if (!currentConfig.display.theme) {
+        currentConfig.display.theme = 'dark';
+    }
+
+    applyTheme(currentConfig.display.theme);
     updateSettingsUI();
 }
 
@@ -121,6 +141,7 @@ function updateSettingsUI() {
     document.getElementById('parallel-downloads').value = currentConfig.download.parallel_downloads || 5;
     document.getElementById('youtube-cookies-browser').value = currentConfig.download.youtube_cookies_browser || '';
     document.getElementById('youtube-cookies-file').value = currentConfig.download.youtube_cookies_file || '';
+    document.getElementById('theme-select').value = currentConfig.display.theme || 'dark';
 }
 
 async function selectDirectory() {
@@ -151,6 +172,9 @@ async function saveSettings() {
     currentConfig.download.parallel_downloads = parseInt(document.getElementById('parallel-downloads').value);
     currentConfig.download.youtube_cookies_browser = document.getElementById('youtube-cookies-browser').value;
     currentConfig.download.youtube_cookies_file = document.getElementById('youtube-cookies-file').value;
+    currentConfig.display.theme = document.getElementById('theme-select').value;
+
+    applyTheme(currentConfig.display.theme);
 
     const saved = await ipcRenderer.invoke('save-config', currentConfig);
     
@@ -175,11 +199,19 @@ function resetSettings() {
             parallel_downloads: 5,
             youtube_cookies_browser: '',
             youtube_cookies_file: ''
+        },
+        display: {
+            theme: 'dark'
         }
     };
     
+    applyTheme(currentConfig.display.theme);
     updateSettingsUI();
     showNotification('Settings reset to defaults');
+}
+
+function applyTheme(theme) {
+    document.body.dataset.theme = theme === 'light' ? 'light' : 'dark';
 }
 
 async function fetchPlaylist() {
@@ -272,6 +304,7 @@ function displayPlaylist(playlistData) {
     }
 
     document.getElementById('playlist-preview').style.display = 'block';
+    document.getElementById('download-progress').style.display = 'none';
 }
 
 function formatSourceLabel(sourceType) {
@@ -316,6 +349,7 @@ function startDownload() {
     document.getElementById('remaining-count').textContent = currentTracks.length;
     document.getElementById('progress-fill').style.width = '0%';
     document.getElementById('download-log').innerHTML = '';
+    document.getElementById('current-track').textContent = `Preparing ${currentTracks.length} tracks for download...`;
     document.querySelectorAll('.open-folder-btn').forEach(button => button.remove());
 
     ipcRenderer.send('start-download', currentTracks, currentConfig);
@@ -396,8 +430,9 @@ function cancelDownload() {
 
 function resetDownloadView() {
     document.getElementById('download-progress').style.display = 'none';
-    document.getElementById('playlist-preview').style.display = 'block';
+    document.getElementById('playlist-preview').style.display = currentTracks.length ? 'block' : 'none';
     document.getElementById('cancel-btn').style.display = 'block';
+    document.getElementById('current-track').textContent = '';
     document.querySelectorAll('.open-folder-btn').forEach(button => button.remove());
 }
 
