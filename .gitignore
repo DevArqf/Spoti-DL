@@ -1,6 +1,7 @@
 .cache
 config.json
 __pycache__/
+src/backend/__pycache__/
 dist/
 node_modules/
 package-lock.json

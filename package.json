@@ -1,8 +1,8 @@
 {
     "name": "spoti-dl",
     "version": "1.0.0",
-    "description": "Desktop app for downloading Spotify playlists",
-    "main": "main.js",
+    "description": "Desktop application for downloading Spotify and YouTube playlists as audio files",
+    "main": "src/main/index.js",
     "scripts": {
         "start": "electron .",
         "build": "electron-builder",
@@ -40,7 +40,7 @@
         ],
         "win": {
             "target": "nsis",
-            "icon": "assets/icon.ico",
+            "icon": "resources/icons/icon.ico",
             "signingHashAlgorithms": [
                 "sha256"
             ]
@@ -51,13 +51,13 @@
         },
         "mac": {
             "target": "dmg",
-            "icon": "assets/icon.icns",
+            "icon": "resources/icons/icon.icns",
             "hardenedRuntime": false,
             "gatekeeperAssess": false
         },
         "linux": {
             "target": "AppImage",
-            "icon": "assets/icon.png",
+            "icon": "resources/icons/icon.png",
             "category": "Audio"
         }
     }
