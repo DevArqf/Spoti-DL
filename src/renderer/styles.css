@@ -491,6 +491,11 @@ code {
     color: var(--error);
 }
 
+.soundcloud-pill {
+    background: rgba(255, 142, 62, 0.16);
+    color: #ff9b4a;
+}
+
 .neutral-pill {
     background: var(--hero-neutral);
     color: var(--accent-warm);

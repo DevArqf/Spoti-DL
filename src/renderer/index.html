@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spoti-DL</title>
+    <title>Playlist Audio Downloader</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body data-theme="dark">
     <div class="app-shell">
         <div class="titlebar">
             <div class="titlebar-title">
-                <img src="../../resources/icons/icon.png" class="logo-icon" alt="Spoti-DL Logo">
+                <img src="../../resources/icons/icon.png" class="logo-icon" alt="Playlist Audio Downloader Logo">
                 <div class="brand-copy">
-                    <strong>Spoti-DL</strong>
+                    <strong>Playlist Audio Downloader</strong>
                     <span>playlist audio downloader</span>
                 </div>
             </div>
@@ -35,7 +35,7 @@
                 <div class="sidebar-header">
                     <div class="sidebar-badge">Desktop workflow</div>
                     <h1>Bring playlists in, export clean audio out.</h1>
-                    <p>One place to fetch, preview, and download Spotify or YouTube playlists.</p>
+                    <p>One place to fetch, preview, and download Spotify, YouTube, or SoundCloud collections.</p>
                 </div>
 
                 <nav class="nav-menu">
@@ -58,13 +58,13 @@
                     <ul class="sidebar-checklist">
                         <li>Choose an output folder</li>
                         <li>Add Spotify API keys if needed</li>
-                        <li>Enable cookies for restricted YouTube content</li>
+                        <li>Enable cookies for restricted YouTube or SoundCloud content</li>
                     </ul>
                 </div>
 
                 <div class="sidebar-footer">
                     <p class="version-info">
-                        <img src="../../resources/icons/icon.png" class="small-logo" alt="Spoti-DL Logo">
+                        <img src="../../resources/icons/icon.png" class="small-logo" alt="Playlist Audio Downloader Logo">
                         Version 1.0.0
                     </p>
                 </div>
@@ -76,11 +76,12 @@
                         <div class="hero-copy">
                             <div class="eyebrow">Download workspace</div>
                             <h2>Fetch a playlist and start downloading in one pass.</h2>
-                            <p>Paste a Spotify or YouTube playlist URL. Preview the playlist before anything gets written to disk.</p>
+                            <p>Paste a Spotify, YouTube, or SoundCloud URL. Preview the collection before anything gets written to disk.</p>
                         </div>
                         <div class="hero-hints">
                             <span class="source-pill spotify-pill">Spotify playlists</span>
                             <span class="source-pill youtube-pill">YouTube playlists</span>
+                            <span class="source-pill soundcloud-pill">SoundCloud playlists and likes</span>
                             <span class="source-pill neutral-pill">Duplicate-aware downloads</span>
                         </div>
                     </section>
@@ -89,14 +90,14 @@
                         <div class="panel-header-row">
                             <div>
                                 <h1>Playlist URL</h1>
-                                <p>Supports <code>open.spotify.com/playlist/...</code> and <code>youtube.com/playlist?list=...</code></p>
+                                <p>Supports <code>open.spotify.com/playlist/...</code>, <code>youtube.com/playlist?list=...</code>, and <code>soundcloud.com/.../sets/...</code> or <code>soundcloud.com/.../likes</code></p>
                             </div>
                         </div>
 
                         <div class="input-group">
                             <div class="input-wrapper">
                                 <svg class="input-icon" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z" fill="currentColor"/></svg>
-                                <input type="text" id="playlist-url" placeholder="Paste a Spotify or YouTube playlist URL" />
+                                <input type="text" id="playlist-url" placeholder="Paste a Spotify, YouTube, or SoundCloud playlist URL" />
                                 <button class="btn-primary" id="fetch-btn">
                                     <span>Fetch Playlist</span>
                                     <svg viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z" fill="currentColor"/></svg>
@@ -167,8 +168,8 @@
                                 <p>Fetch first, confirm the playlist preview, then start downloading. Existing files will be skipped automatically.</p>
                             </section>
                             <section class="mini-panel">
-                                <div class="mini-panel-title">Restricted YouTube content</div>
-                                <p>If a video is private or region-locked, enable a supported browser session or select a <code>cookies.txt</code> file in settings.</p>
+                                <div class="mini-panel-title">Restricted content</div>
+                                <p>If a YouTube video or SoundCloud likes page needs sign-in, enable a supported browser session or select a <code>cookies.txt</code> file in settings.</p>
                             </section>
                         </aside>
                     </div>
@@ -264,12 +265,12 @@
 
                             <section class="settings-card">
                                 <div class="settings-card-header">
-                                    <h2>YouTube access</h2>
-                                    <p>Use browser cookies or an exported cookies file for restricted content.</p>
+                                    <h2>Browser-auth access</h2>
+                                    <p>Use browser cookies or an exported cookies file for restricted YouTube and SoundCloud content.</p>
                                 </div>
                                 <div class="settings-grid two-column">
                                     <div class="setting-group">
-                                        <label>YouTube Cookies Browser</label>
+                                        <label>Cookies Browser</label>
                                         <select id="youtube-cookies-browser">
                                             <option value="">Disabled</option>
                                             <option value="chrome">Chrome</option>
@@ -277,11 +278,11 @@
                                             <option value="firefox">Firefox</option>
                                             <option value="brave">Brave</option>
                                         </select>
-                                        <span class="setting-hint">Use your signed-in browser session for private or restricted YouTube videos.</span>
+                                        <span class="setting-hint">Use your signed-in browser session for private YouTube videos or SoundCloud liked tracks pages.</span>
                                     </div>
 
                                     <div class="setting-group">
-                                        <label>YouTube Cookies File</label>
+                                        <label>Cookies File</label>
                                         <div class="input-with-button">
                                             <input type="text" id="youtube-cookies-file" placeholder="Select cookies.txt file" readonly />
                                             <button class="btn-secondary" id="select-cookies-file-btn">Browse</button>
@@ -302,18 +303,18 @@
                 <div id="about-view" class="view">
                     <section class="about-container panel">
                         <div class="eyebrow">About the app</div>
-                        <img src="../../resources/icons/icon.png" class="about-logo-img" alt="Spoti-DL Logo">
-                        <h1>Spoti-DL Desktop</h1>
+                        <img src="../../resources/icons/icon.png" class="about-logo-img" alt="Playlist Audio Downloader Logo">
+                        <h1>Playlist Audio Downloader</h1>
                         <p class="version">Version 1.0.0</p>
 
                         <p class="description">
-                            A desktop application for downloading Spotify and YouTube playlists as high-quality audio files, with live progress and a cleaner fetch-to-download workflow.
+                            A desktop application for downloading Spotify, YouTube, and SoundCloud playlists or liked tracks as high-quality audio files, with live progress and a cleaner fetch-to-download workflow.
                         </p>
 
                         <div class="features-list">
                             <div class="feature">
                                 <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg>
-                                <span>Spotify and YouTube playlist support</span>
+                                <span>Spotify, YouTube, and SoundCloud support</span>
                             </div>
                             <div class="feature">
                                 <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg>

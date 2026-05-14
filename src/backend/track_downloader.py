@@ -2,6 +2,7 @@ import json
 import os
 import re
 import sys
+import time
 import unicodedata
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
@@ -38,6 +39,9 @@ FORMAT_FALLBACKS = [
     "bestaudio",
     "best",
 ]
+DIRECT_SOURCE_TYPES = {"youtube_video", "soundcloud_track"}
+RATE_LIMIT_MAX_RETRIES = 4
+SOUNDCLOUD_MAX_PARALLEL_DOWNLOADS = 2
 
 
 class SilentLogger:
@@ -108,12 +112,14 @@ def build_download_options(output_dir, filename, audio_format, audio_quality):
     }
 
 
-def add_youtube_cookies_option(ydl_opts, config):
+def add_browser_cookies_option(ydl_opts, config):
     download_config = config.get("download", {}) if isinstance(config, dict) else {}
     cookies_file = download_config.get("youtube_cookies_file", "").strip()
     browser = download_config.get("youtube_cookies_browser", "").strip().lower()
 
     if cookies_file:
+        if not os.path.exists(cookies_file):
+            raise FileNotFoundError(f"Cookies file not found: {cookies_file}")
         ydl_opts["cookiefile"] = cookies_file
         return
 
@@ -123,10 +129,25 @@ def add_youtube_cookies_option(ydl_opts, config):
 
 def simplify_download_error(message):
     text = str(message)
+    if "HTTP Error 429" in text or "Too Many Requests" in text:
+        return (
+            "Rate limited by the source site after multiple requests. "
+            "Wait a bit and retry, or reduce parallel downloads."
+        )
     if "Private video" in text:
         return (
             "Private YouTube video. Sign into the selected browser with access to this video, "
             "then enable that browser under YouTube Cookies Browser in Settings."
+        )
+    if "confirm you're not a bot" in text.lower():
+        return (
+            "YouTube asked for an anti-bot verification. Try a fresher cookies.txt export "
+            "from the browser where YouTube is already working."
+        )
+    if "sign in to confirm your age" in text.lower():
+        return (
+            "This YouTube content is age-restricted. Use a signed-in browser session or a cookies.txt file "
+            "from a YouTube account that can open it."
         )
     if "Could not copy Chrome cookie database" in text:
         return (
@@ -236,6 +257,15 @@ def choose_best_youtube_match(track):
         "ignoreerrors": True,
         "logger": SilentLogger(),
     }
+    add_browser_cookies_option(
+        search_opts,
+        {
+            "download": {
+                "youtube_cookies_browser": track.get("_youtube_cookies_browser", ""),
+                "youtube_cookies_file": track.get("_youtube_cookies_file", ""),
+            }
+        },
+    )
 
     with yt_dlp.YoutubeDL(search_opts) as ydl:
         results = ydl.extract_info(f"ytsearch{MAX_SEARCH_RESULTS}:{search_query}", download=False)
@@ -265,31 +295,50 @@ def choose_best_youtube_match(track):
     return best_candidate, None
 
 
+def is_rate_limit_error(message):
+    text = str(message)
+    return "HTTP Error 429" in text or "Too Many Requests" in text
+
+
+def get_download_worker_count(tracks, configured_workers):
+    if tracks and all(track.get("source_type") == "soundcloud_track" for track in tracks):
+        return max(1, min(configured_workers, SOUNDCLOUD_MAX_PARALLEL_DOWNLOADS))
+    return configured_workers
+
+
 def download_from_url(source_url, track, output_dir, audio_format, audio_quality):
     filename = safe_filename(track)
     last_error = None
 
     for format_selector in FORMAT_FALLBACKS:
-        ydl_opts = build_download_options(output_dir, filename, audio_format, audio_quality)
-        ydl_opts["format"] = format_selector
-        add_youtube_cookies_option(
-            ydl_opts,
-            {
-                "download": {
-                    "youtube_cookies_browser": track.get("_youtube_cookies_browser", ""),
-                    "youtube_cookies_file": track.get("_youtube_cookies_file", ""),
-                }
-            },
-        )
+        for attempt in range(RATE_LIMIT_MAX_RETRIES + 1):
+            ydl_opts = build_download_options(output_dir, filename, audio_format, audio_quality)
+            ydl_opts["format"] = format_selector
+            add_browser_cookies_option(
+                ydl_opts,
+                {
+                    "download": {
+                        "youtube_cookies_browser": track.get("_youtube_cookies_browser", ""),
+                        "youtube_cookies_file": track.get("_youtube_cookies_file", ""),
+                    }
+                },
+            )
 
-        try:
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.extract_info(source_url, download=True)
-            return
-        except Exception as exc:
-            last_error = exc
-            if "Requested format is not available" not in str(exc):
-                raise
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    ydl.extract_info(source_url, download=True)
+                return
+            except Exception as exc:
+                last_error = exc
+
+                if is_rate_limit_error(exc) and attempt < RATE_LIMIT_MAX_RETRIES:
+                    time.sleep(3 * (attempt + 1))
+                    continue
+
+                if "Requested format is not available" not in str(exc):
+                    raise
+
+                break
 
     if last_error:
         raise last_error
@@ -299,7 +348,7 @@ def download_track(track, output_dir, audio_format, audio_quality):
     try:
         source_type = track.get("source_type")
 
-        if source_type == "youtube_video":
+        if source_type in DIRECT_SOURCE_TYPES:
             download_from_url(track["source_url"], track, output_dir, audio_format, audio_quality)
             return {
                 "status": "success",
@@ -345,7 +394,7 @@ def download_tracks(tracks, config):
     output_dir = config["download"]["output_directory"]
     audio_format = config["download"]["audio_format"]
     audio_quality = config["download"]["audio_quality"]
-    max_workers = config["download"]["parallel_downloads"]
+    max_workers = get_download_worker_count(tracks, config["download"]["parallel_downloads"])
 
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
@@ -405,8 +454,14 @@ def download_tracks(tracks, config):
 
 
 if __name__ == "__main__":
-    tracks = json.loads(sys.argv[1])
-    config = json.loads(sys.argv[2])
+    if len(sys.argv) == 2 and os.path.exists(sys.argv[1]):
+        with open(sys.argv[1], "r", encoding="utf-8") as payload_file:
+            payload = json.load(payload_file)
+        tracks = payload["tracks"]
+        config = payload["config"]
+    else:
+        tracks = json.loads(sys.argv[1])
+        config = json.loads(sys.argv[2])
 
     success = download_tracks(tracks, config)
     sys.exit(0 if success else 1)

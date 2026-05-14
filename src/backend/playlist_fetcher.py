@@ -1,8 +1,11 @@
 import base64
+import http.cookiejar
 import json
+import os
 import re
 import sys
 from html import unescape
+from urllib.parse import urlencode
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -32,7 +35,17 @@ def simplify_fetch_error(message):
     if "Private video" in text:
         return (
             "This YouTube playlist contains a private video. Sign into a browser that has access "
-            "to it, then select that browser in YouTube Cookies Browser under Settings."
+            "to it, then select that browser in Cookies Browser under Settings."
+        )
+    if "confirm you're not a bot" in text.lower():
+        return (
+            "YouTube asked for an anti-bot verification. Try a fresher cookies.txt export "
+            "from the browser where YouTube is already working."
+        )
+    if "sign in to confirm your age" in text.lower():
+        return (
+            "This YouTube content is age-restricted. Use a signed-in browser session or a cookies.txt file "
+            "from a YouTube account that can open it."
         )
     if "Could not copy Chrome cookie database" in text:
         return (
@@ -40,15 +53,22 @@ def simplify_fetch_error(message):
             "Close Chrome completely, use another browser option, or set an exported cookies.txt "
             "file in Settings."
         )
+    if "soundcloud.com/you/likes" in text or "login required" in text.lower():
+        return (
+            "This SoundCloud likes page needs your signed-in browser session. "
+            "Choose your browser under Cookies Browser in Settings, or set a cookies.txt file."
+        )
     return text
 
 
-def add_youtube_auth_options(ydl_opts, config):
+def add_browser_auth_options(ydl_opts, config):
     download_config = (config or {}).get("download", {}) if isinstance(config, dict) else {}
     cookies_file = download_config.get("youtube_cookies_file", "").strip()
     browser = download_config.get("youtube_cookies_browser", "").strip().lower()
 
     if cookies_file:
+        if not os.path.exists(cookies_file):
+            raise FileNotFoundError(f"Cookies file not found: {cookies_file}")
         ydl_opts["cookiefile"] = cookies_file
         return
 
@@ -62,6 +82,16 @@ def fetch_url(url):
         return response.read().decode("utf-8", errors="replace")
 
 
+def fetch_json(url, headers=None, query=None):
+    resolved_url = url
+    if query:
+        resolved_url = f"{url}?{urlencode(query)}"
+
+    request = Request(resolved_url, headers={"User-Agent": USER_AGENT, **(headers or {})})
+    with urlopen(request, timeout=30) as response:
+        return json.loads(response.read().decode("utf-8", errors="replace"))
+
+
 def parse_spotify_playlist_id(playlist_url):
     if "playlist/" in playlist_url:
         return playlist_url.split("playlist/")[-1].split("?")[0]
@@ -71,6 +101,70 @@ def parse_spotify_playlist_id(playlist_url):
 def parse_youtube_playlist_id(playlist_url):
     match = re.search(r"[?&]list=([a-zA-Z0-9_-]+)", playlist_url)
     return match.group(1) if match else None
+
+
+def extract_soundcloud_oauth_token(config):
+    download_config = (config or {}).get("download", {}) if isinstance(config, dict) else {}
+    cookies_file = download_config.get("youtube_cookies_file", "").strip()
+
+    if not cookies_file:
+        return None
+
+    try:
+        cookie_jar = http.cookiejar.MozillaCookieJar(cookies_file)
+        cookie_jar.load(ignore_discard=True, ignore_expires=True)
+    except Exception:
+        return None
+
+    for cookie in cookie_jar:
+        if cookie.name == "oauth_token" and cookie.value:
+            return cookie.value
+
+    return None
+
+
+def extract_soundcloud_client_id():
+    homepage = fetch_url("https://soundcloud.com/")
+    script_urls = re.findall(r'<script[^>]+src="([^"]+)"', homepage)
+
+    for script_url in reversed(script_urls):
+        try:
+            script_body = fetch_url(script_url)
+        except Exception:
+            continue
+
+        match = re.search(r'client_id\s*:\s*"([0-9a-zA-Z]{32})"', script_body)
+        if match:
+            return match.group(1)
+
+    return None
+
+
+def resolve_soundcloud_likes_url(playlist_url, config=None):
+    if "/you/likes" not in playlist_url.lower():
+        return playlist_url
+
+    oauth_token = extract_soundcloud_oauth_token(config)
+    if not oauth_token:
+        raise ValueError(
+            "This SoundCloud likes page needs a cookies.txt file or browser session with a valid SoundCloud login."
+        )
+
+    client_id = extract_soundcloud_client_id()
+    if not client_id:
+        raise ValueError("Could not determine the SoundCloud client id needed to resolve your likes page.")
+
+    current_user = fetch_json(
+        "https://api-v2.soundcloud.com/me",
+        headers={"Authorization": f"OAuth {oauth_token}"},
+        query={"client_id": client_id},
+    )
+
+    permalink = current_user.get("permalink")
+    if not permalink:
+        raise ValueError("Could not resolve your SoundCloud profile from the current login session.")
+
+    return f"https://soundcloud.com/{permalink}/likes"
 
 
 def normalize_duration_seconds(duration_ms):
@@ -204,7 +298,7 @@ def fetch_youtube_playlist(playlist_url, config=None):
         "ignoreerrors": True,
         "logger": SilentLogger(),
     }
-    add_youtube_auth_options(ydl_opts, config)
+    add_browser_auth_options(ydl_opts, config)
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(playlist_url, download=False)
@@ -241,10 +335,159 @@ def fetch_youtube_playlist(playlist_url, config=None):
     }
 
 
+def build_soundcloud_track(entry, collection_title):
+    title = entry.get("title") or "Unknown Title"
+    artist = entry.get("artist") or entry.get("uploader") or entry.get("channel") or "Unknown Artist"
+    duration = int(entry.get("duration") or 0)
+    webpage_url = entry.get("webpage_url") or entry.get("original_url") or ""
+
+    return {
+        "name": title,
+        "artist": artist,
+        "artists": [artist],
+        "album": collection_title or "",
+        "duration": duration,
+        "source_type": "soundcloud_track",
+        "source_url": webpage_url,
+    }
+
+
+def build_soundcloud_track_from_api(track, collection_title):
+    title = track.get("title") or "Unknown Title"
+    artist = (
+        track.get("user", {}).get("username")
+        or track.get("publisher_metadata", {}).get("artist")
+        or "Unknown Artist"
+    )
+    duration = normalize_duration_seconds(track.get("duration"))
+    webpage_url = track.get("permalink_url") or ""
+
+    return {
+        "name": title,
+        "artist": artist,
+        "artists": [artist],
+        "album": collection_title or "",
+        "duration": duration,
+        "source_type": "soundcloud_track",
+        "source_url": webpage_url,
+    }
+
+
+def fetch_soundcloud_collection(playlist_url, config=None):
+    if "/likes" in playlist_url.lower():
+        return fetch_soundcloud_likes_collection(playlist_url, config)
+
+    resolved_url = resolve_soundcloud_likes_url(playlist_url, config)
+    ydl_opts = {
+        "quiet": True,
+        "no_warnings": True,
+        "extract_flat": False,
+        "skip_download": True,
+        "playlistend": 5000,
+        "ignoreerrors": True,
+        "logger": SilentLogger(),
+    }
+    add_browser_auth_options(ydl_opts, config)
+
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(resolved_url, download=False)
+
+    if not info:
+        return {"error": "The provided SoundCloud URL could not be read."}
+
+    entries = info.get("entries") or []
+    if not entries:
+        return {"error": "No playable tracks were found in this SoundCloud collection."}
+
+    collection_title = info.get("title") or "SoundCloud Collection"
+    tracks = [build_soundcloud_track(entry, collection_title) for entry in entries if entry]
+
+    if not tracks:
+        return {"error": "No usable tracks were found in this SoundCloud collection."}
+
+    lower_url = playlist_url.lower()
+    collection_type = "soundcloud_likes" if "/likes" in lower_url else "soundcloud_playlist"
+    fallback_name = "SoundCloud Likes" if collection_type == "soundcloud_likes" else "SoundCloud Playlist"
+
+    return {
+        "name": collection_title or fallback_name,
+        "tracks": tracks,
+        "source_type": collection_type,
+    }
+
+
+def resolve_soundcloud_user_for_likes(playlist_url, config=None):
+    client_id = extract_soundcloud_client_id()
+    if not client_id:
+        raise ValueError("Could not determine the SoundCloud client id needed to resolve this likes page.")
+
+    if "/you/likes" in playlist_url.lower():
+        oauth_token = extract_soundcloud_oauth_token(config)
+        if not oauth_token:
+            raise ValueError(
+                "This SoundCloud likes page needs a cookies.txt file or browser session with a valid SoundCloud login."
+            )
+
+        current_user = fetch_json(
+            "https://api-v2.soundcloud.com/me",
+            headers={"Authorization": f"OAuth {oauth_token}"},
+            query={"client_id": client_id},
+        )
+        return current_user, client_id, oauth_token
+
+    public_profile_url = playlist_url.rsplit("/likes", 1)[0]
+    resolved_user = fetch_json(
+        "https://api-v2.soundcloud.com/resolve",
+        query={"url": public_profile_url, "client_id": client_id},
+    )
+    return resolved_user, client_id, None
+
+
+def fetch_soundcloud_likes_collection(playlist_url, config=None):
+    user, client_id, oauth_token = resolve_soundcloud_user_for_likes(playlist_url, config)
+    user_id = user.get("id")
+    if not user_id:
+        return {"error": "Could not resolve the SoundCloud user for this likes page."}
+
+    collection_name = f"{user.get('username') or user.get('permalink') or 'SoundCloud'} Likes"
+    headers = {"Authorization": f"OAuth {oauth_token}"} if oauth_token else None
+    query = {
+        "client_id": client_id,
+        "limit": 200,
+        "linked_partitioning": "1",
+    }
+    next_url = f"https://api-v2.soundcloud.com/users/{user_id}/likes"
+    tracks = []
+
+    while next_url and len(tracks) < 5000:
+        page = fetch_json(next_url, headers=headers, query=query)
+        for item in page.get("collection", []):
+            track = item.get("track")
+            if not track:
+                continue
+            tracks.append(build_soundcloud_track_from_api(track, collection_name))
+            if len(tracks) >= 5000:
+                break
+
+        next_url = page.get("next_href")
+        query = None
+
+    if not tracks:
+        return {"error": "No playable liked tracks were found for this SoundCloud account."}
+
+    return {
+        "name": collection_name,
+        "tracks": tracks,
+        "source_type": "soundcloud_likes",
+    }
+
+
 def detect_source_type(playlist_url):
     lower_url = playlist_url.lower()
     if "youtube.com" in lower_url or "youtu.be" in lower_url:
         return "youtube"
+    if "soundcloud.com" in lower_url:
+        return "soundcloud"
     if "spotify.com" in lower_url or re.fullmatch(r"[A-Za-z0-9]{22}", playlist_url.strip()):
         return "spotify"
     return "unknown"
@@ -256,11 +499,13 @@ def fetch_playlist(playlist_url, client_id, client_secret, config=None):
     try:
         if source_type == "youtube":
             return fetch_youtube_playlist(playlist_url, config)
+        if source_type == "soundcloud":
+            return fetch_soundcloud_collection(playlist_url, config)
         if source_type == "spotify":
             return fetch_spotify_playlist(playlist_url, client_id, client_secret)
         return {
             "error": (
-                "Unsupported playlist URL. Use a Spotify playlist URL or a YouTube playlist URL."
+                "Unsupported playlist URL. Use a Spotify, YouTube, or SoundCloud playlist URL."
             )
         }
     except HTTPError as exc:

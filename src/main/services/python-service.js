@@ -1,3 +1,5 @@
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { spawn } = require('child_process');
 
@@ -52,13 +54,28 @@ function runJsonScript(filename, args) {
     });
 }
 
+function createDownloadPayloadFile(tracks, config) {
+    const payloadPath = path.join(
+        os.tmpdir(),
+        `playlist-audio-downloader-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
+    );
+
+    fs.writeFileSync(
+        payloadPath,
+        JSON.stringify({
+            tracks,
+            config,
+        }),
+        'utf8',
+    );
+
+    return payloadPath;
+}
+
 function startDownloadProcess(tracks, config, onProgress, onComplete) {
     const scriptPath = resolveBackendScript('track_downloader.py');
-    const childProcess = spawn('python', [
-        scriptPath,
-        JSON.stringify(tracks),
-        JSON.stringify(config),
-    ]);
+    const payloadPath = createDownloadPayloadFile(tracks, config);
+    const childProcess = spawn('python', [scriptPath, payloadPath]);
 
     childProcess.stdout.on('data', (data) => {
         const lines = data.toString().split('\n');
@@ -84,6 +101,11 @@ function startDownloadProcess(tracks, config, onProgress, onComplete) {
     });
 
     childProcess.on('close', (code) => {
+        try {
+            fs.unlinkSync(payloadPath);
+        } catch (error) {
+            console.warn(`Failed to remove temporary download payload: ${payloadPath}`);
+        }
         onComplete(code === 0);
     });
 

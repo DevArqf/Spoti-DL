@@ -234,6 +234,10 @@ function detectPlaylistSource(url) {
         return 'youtube';
     }
 
+    if (normalizedUrl.includes('soundcloud.com')) {
+        return 'soundcloud';
+    }
+
     if (normalizedUrl.includes('spotify.com')) {
         return 'spotify';
     }
@@ -251,7 +255,7 @@ async function fetchPlaylist() {
     }
 
     if (playlistSource === 'unknown') {
-        showNotification('Use a Spotify playlist URL or a YouTube playlist URL', 'error');
+        showNotification('Use a Spotify, YouTube, or SoundCloud playlist URL', 'error');
         return;
     }
 
@@ -356,6 +360,14 @@ function formatSourceLabel(sourceType) {
 
     if (sourceType === 'youtube_playlist') {
         return 'YouTube';
+    }
+
+    if (sourceType === 'soundcloud_playlist') {
+        return 'SoundCloud';
+    }
+
+    if (sourceType === 'soundcloud_likes') {
+        return 'SoundCloud Likes';
     }
 
     return 'Playlist';

@@ -1,5 +1,5 @@
 {
-    "name": "spoti-dl",
+    "name": "playlist-audio-downloader",
     "version": "1.0.0",
     "description": "Desktop application for downloading Spotify and YouTube playlists as audio files",
     "main": "src/main/index.js",
@@ -27,8 +27,8 @@
         "axios": "^1.6.2"
     },
     "build": {
-        "appId": "com.devarqf.spotidl",
-        "productName": "Spoti-DL",
+        "appId": "com.devarqf.playlistaudiodownloader",
+        "productName": "Playlist Audio Downloader",
         "directories": {
             "output": "dist"
         },
